@@ -1,0 +1,183 @@
+#include <stdio.h>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <iostream>
+#include <filesystem>
+#include "omp.h"
+
+#include "sequentialAlgo.h"
+#include "parallelStaticAlgo.h"
+#include "parallelManualAlgo.h"
+#include "parallelDynamicAlgo.h"
+
+
+#define NUM_ITERATIONS 5
+#define NUM_THREADS 2
+
+
+bool compStringToInt(std::string a, std::string b){
+    return std::stoi(a) < std::stoi(b);
+}
+
+bool compString(std::string a, std::string b){
+    return a > b;
+}
+
+std::map<std::string, std::vector<std::string>>* getSeriesPath(std::string path){
+    std::map<std::string, std::vector<std::string>>* folders = new std::map<std::string, std::vector<std::string>>();
+
+    std::vector<std::string>* folderPaths = new std::vector<std::string>();
+    for (const auto& entry : std::filesystem::directory_iterator(path)){
+        folderPaths->push_back(entry.path().filename().string());
+    }
+    std::sort(folderPaths->begin(), folderPaths->end(), compStringToInt);
+    for(int i = 0; i < (int)(folderPaths->size()); i++){
+        std::string name = folderPaths->at(i);
+        folderPaths->at(i) = path + "\\" + name;
+    }
+
+    for (std::string name : *folderPaths){
+        std::vector<std::string>* files = new std::vector<std::string>();
+
+        for (const auto& entry : std::filesystem::directory_iterator(name)){
+            files->push_back(entry.path().filename().string());
+        }
+        std::sort(files->begin(), files->end(), compString);
+
+        folders->insert(std::pair<std::string, std::vector<std::string>>(name, *files));
+    }
+
+    return folders;
+}
+
+
+void saveComputationTimes(std::map<std::string, std::map<std::string, std::vector<long long int>>>* computationTimeElapsed, char* filename){
+    FILE* file = fopen(filename, "w");
+    if (file == NULL){
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    fprintf(file, "Algorithm;Series;File;");
+    for (int i = 0; i < NUM_ITERATIONS; i++){
+        fprintf(file, "Iteration %d", i);
+        if (i < NUM_ITERATIONS - 1){
+            fprintf(file, ";");
+        }
+    }
+    fprintf(file, "\n");
+
+    for (const auto& [algoName, seriesMap] : *computationTimeElapsed) {
+        for (const auto& [seriesFiles, times] : seriesMap) {
+            fprintf(file, "%s;%s;", algoName.c_str(), seriesFiles.c_str());
+            for (size_t i = 0; i < times.size(); ++i) {
+                fprintf(file, "%lld", times[i]);
+                if (i < times.size() - 1){
+                    fprintf(file, ";");
+                }
+            }
+            fprintf(file, "\n");
+        }
+    }
+
+    fclose(file);
+}
+
+
+void printBind(int bind){
+    switch (bind) {
+        case omp_proc_bind_false:
+            printf("Proc bind: false\n");
+            break;
+        case omp_proc_bind_true:
+            printf("Proc bind: true\n");
+            break;
+        case omp_proc_bind_master:
+            printf("Proc bind: master\n");
+            break;
+        case omp_proc_bind_close:
+            printf("Proc bind: close\n");
+            break;
+        case omp_proc_bind_spread:
+            printf("Proc bind: spread\n");
+            break;
+        default:
+            printf("Proc bind: unknown\n");
+            break;
+    }
+}
+
+ 
+int main()
+{
+    std::string path = "..\\mockseries\\series";
+    std::map<std::string, std::vector<std::string>>* serieFolders = getSeriesPath(path);
+    std::map<std::string, std::map<std::string, std::vector<long long int>>> computationTimeElapsed;
+
+    for (auto const& [serieName, files] : *serieFolders){
+        printf("Serie: %s\n", serieName.c_str());
+        for (std::string file : files){
+            printf("File: %s\n", file.c_str());
+        }
+    }
+
+    std::vector<Algo*> algos = {
+        //new SequentialAlgo(),
+        new ParallelManualAlgo(),
+        new ParallelStaticAlgo(),
+        new ParallelDynamicAlgo()
+    };
+    
+    omp_set_num_threads(NUM_THREADS);
+
+    printBind(omp_get_proc_bind());
+
+    long long int movingComputationTimeElapsed;
+    std::map<std::string, std::vector<long long int>> computationTimeElapsedEntry;
+
+    for (Algo* algo : algos){
+        printf("\n#####################################################################\n");
+        printf("######### Running %s #########\n", algo->getName());
+
+        for (auto const& [serieName, files] : *serieFolders){
+            std::string entireTimeSerieName = serieName + "\\" + files[files.size() - 1];
+            std::string timeSerieToSearchName = serieName + "\\" + files[2];
+
+            printf("Entire time serie: %s\n", entireTimeSerieName.c_str());
+            printf("Time serie to search: %s\n", timeSerieToSearchName.c_str());
+
+            long long int totalComputationTimeElapsed = 0;
+            std::vector<long long int> computationTimes;
+
+            for (int i = 0; i < NUM_ITERATIONS; i++){
+                Data* entireTimeSeries = algo->read(entireTimeSerieName.c_str(), false);
+                Data* timeSeriesTosearch = algo->read(timeSerieToSearchName.c_str(), false);
+    
+                movingComputationTimeElapsed = algo->compute(entireTimeSeries, timeSeriesTosearch, false);
+                
+                computationTimes.push_back(movingComputationTimeElapsed);
+                totalComputationTimeElapsed += movingComputationTimeElapsed;
+            }
+
+            computationTimeElapsedEntry.insert(std::pair<std::string, std::vector<long long int>>(entireTimeSerieName + " - " + timeSerieToSearchName, computationTimes));
+            
+            printf("Average time for iteration: %lld ms\n", totalComputationTimeElapsed / NUM_ITERATIONS);
+        }
+        
+        computationTimeElapsed.insert(std::pair<std::string, std::map<std::string, std::vector<long long int>>>(algo->getName(), computationTimeElapsedEntry));
+        computationTimeElapsedEntry.clear();
+
+        printf("#####################################################################\n");
+        printf("#####################################################################\n");
+    }    
+
+    saveComputationTimes(&computationTimeElapsed, "..\\results\\test.csv");
+
+    delete(serieFolders);
+    for (Algo* algo : algos){
+        delete(algo);
+    }
+
+    return 0;
+}
