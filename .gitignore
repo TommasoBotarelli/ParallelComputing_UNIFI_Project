@@ -3,8 +3,9 @@ report/
 build/
 .vscode/
 .ipynb_checkpoints/
-mockseries/
 results/
 trash/
 include/
 images/
+series/
+unused_series/
