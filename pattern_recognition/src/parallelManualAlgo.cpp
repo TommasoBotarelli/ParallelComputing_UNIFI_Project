@@ -49,7 +49,7 @@ long long int ParallelManualAlgo::compute(Data* __restrict entireTimeSeries, Dat
     
     auto start = std::chrono::high_resolution_clock::now();
 
-    #pragma omp parallel shared(globalMinDistance, globalMinIndex, globalThreadNumberOfFounder)
+    #pragma omp parallel shared(globalMinIndex, globalThreadNumberOfFounder)
     {
         int threadId = omp_get_thread_num();
         int numThreads = omp_get_num_threads();

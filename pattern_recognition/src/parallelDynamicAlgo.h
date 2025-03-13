@@ -8,6 +8,8 @@ class ParallelDynamicAlgo : public ParallelStaticAlgo {
     public:
         ParallelDynamicAlgo();
         virtual long long int compute(Data* __restrict entireTimeSeries, Data* __restrict timeSeriesToSearch, bool printResults);
+    protected:
+        virtual void initData(Data* data, int size, float* values) override;
 };
 
 #endif

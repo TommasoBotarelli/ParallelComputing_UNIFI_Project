@@ -16,8 +16,12 @@ add_executable(
                src/algo.cpp
                src/sequentialAlgo.cpp
                src/parallelStaticAlgo.cpp
+               src/parallelStaticAlgoNoFirstTouch.cpp
+               src/parallelSmartStaticAlgo.cpp
                src/parallelManualAlgo.cpp
+               src/parallelManualAlgoNoFirstTouch.cpp
                src/parallelDynamicAlgo.cpp
+               src/parallelDynamicAlgoNoFirstTouch.cpp
                )
 
 target_link_libraries(patternRecognition PUBLIC OpenMP::OpenMP_CXX)

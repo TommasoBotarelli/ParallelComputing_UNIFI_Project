@@ -1,47 +1,20 @@
+#include "parallelSmartStaticAlgo.h"
+
 #include <cmath>
 #include <stdio.h>
 #include <chrono>
 #include <string>
 
-#include "parallelStaticAlgo.h"
-#include "omp.h"
-
-ParallelStaticAlgo::ParallelStaticAlgo()
+ParallelSmartStaticAlgo::ParallelSmartStaticAlgo()
 {
-    parallel = true;
-    vectorized = false;
+    this->setName("Smart static parallel implementation");
 
-    this->setName("Static parallel implementation");
+    this->parallel = true;
+    this->vectorized = true;
 }
 
-
-void ParallelStaticAlgo::setName(char* name) {
-    int numThreads;
-    #pragma omp parallel
-    {
-        #pragma omp single
-        numThreads = omp_get_num_threads();
-    }
-
-    char numThreadsStr[10];
-    sprintf(numThreadsStr, "%d", numThreads);
-
-    this->name = new char[100];
-    sprintf(this->name, "%s with %s threads", name, numThreadsStr);
-}
-
-
-void ParallelStaticAlgo::initData(Data* data, int size, float* values) {
-    data->size = size;
-    data->values = new float[size];
-    #pragma omp parallel for simd schedule(static)
-    for(int i = 0; i < size; i++) {
-        data->values[i] = values[i];
-    }
-}
-
-
-long long int ParallelStaticAlgo::compute(Data* __restrict entireTimeSeries, Data* __restrict timeSeriesToSearch, bool printResults) {
+long long int ParallelSmartStaticAlgo::compute(Data *__restrict entireTimeSeries, Data *__restrict timeSeriesToSearch, bool printResults)
+{
     int n = entireTimeSeries->size;
     int m = timeSeriesToSearch->size;
 
@@ -60,19 +33,22 @@ long long int ParallelStaticAlgo::compute(Data* __restrict entireTimeSeries, Dat
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    #pragma omp parallel for private(distance) shared(minDistance)
+    #pragma omp parallel for private(distance) reduction(min:minDistance) schedule(static)
     for (int i = 0; i < n - m; i++) {
         distance = 0;
         #pragma omp simd
         for (int j = 0; j < m; j++) {
             distance += abs(entireTimeSeriesValues[i + j] - timeSeriesToSearchValues[j]);
         }
-        #pragma omp critical
-        {
-            if (distance < minDistance) {
-                minDistance = distance;
-                minIndex = i;
-                maxIndex = i + m;
+
+        if (distance < minDistance) {
+            #pragma omp critical
+            {
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    minIndex = i;
+                    maxIndex = i + m;
+                }
             }
         }
     }

@@ -8,12 +8,15 @@
 
 #include "sequentialAlgo.h"
 #include "parallelStaticAlgo.h"
+#include "parallelSmartStaticAlgo.h"
+#include "parallelStaticAlgoNoFirstTouch.h"
 #include "parallelManualAlgo.h"
+#include "parallelManualAlgoNoFirstTouch.h"
 #include "parallelDynamicAlgo.h"
+#include "parallelDynamicAlgoNoFirstTouch.h"
 
 
-#define NUM_ITERATIONS 5
-#define NUM_THREADS 2
+#define NUM_ITERATIONS 50
 
 
 bool compStringToInt(std::string a, std::string b){
@@ -34,7 +37,7 @@ std::map<std::string, std::vector<std::string>>* getSeriesPath(std::string path)
     std::sort(folderPaths->begin(), folderPaths->end(), compStringToInt);
     for(int i = 0; i < (int)(folderPaths->size()); i++){
         std::string name = folderPaths->at(i);
-        folderPaths->at(i) = path + "\\" + name;
+        folderPaths->at(i) = path + "/" + name;
     }
 
     for (std::string name : *folderPaths){
@@ -52,8 +55,8 @@ std::map<std::string, std::vector<std::string>>* getSeriesPath(std::string path)
 }
 
 
-void saveComputationTimes(std::map<std::string, std::map<std::string, std::vector<long long int>>>* computationTimeElapsed, char* filename){
-    FILE* file = fopen(filename, "w");
+void saveComputationTimes(std::map<std::string, std::map<std::string, std::vector<long long int>>>* computationTimeElapsed, std::string filename){
+    FILE* file = fopen(filename.c_str(), "w");
     if (file == NULL){
         printf("Error opening file!\n");
         exit(1);
@@ -109,9 +112,19 @@ void printBind(int bind){
 }
 
  
-int main()
+int main(int argc, char* argv[])
 {
-    std::string path = "..\\mockseries\\series";
+    if (argc < 4) {
+        std::cerr << "Usage: " << argv[0] << " <path_to_series> <threads_number> <output_file_name>" << std::endl;
+        return 1;
+    }
+
+    std::string path = argv[1];
+    int numThreads = std::stoi(argv[2]);
+    std::string outputFileName = argv[3];
+
+    omp_set_num_threads(numThreads);
+
     std::map<std::string, std::vector<std::string>>* serieFolders = getSeriesPath(path);
     std::map<std::string, std::map<std::string, std::vector<long long int>>> computationTimeElapsed;
 
@@ -124,12 +137,14 @@ int main()
 
     std::vector<Algo*> algos = {
         //new SequentialAlgo(),
+        new ParallelManualAlgoNoFirstTouch(),
         new ParallelManualAlgo(),
-        new ParallelStaticAlgo(),
-        new ParallelDynamicAlgo()
+        //new ParallelStaticAlgo(),
+        //new ParallelSmartStaticAlgo()
+        //new ParallelStaticAlgoNoFirstTouch()
+        //new ParallelDynamicAlgo(),
+        //new ParallelDynamicAlgoNoFirstTouch()
     };
-    
-    omp_set_num_threads(NUM_THREADS);
 
     printBind(omp_get_proc_bind());
 
@@ -141,8 +156,8 @@ int main()
         printf("######### Running %s #########\n", algo->getName());
 
         for (auto const& [serieName, files] : *serieFolders){
-            std::string entireTimeSerieName = serieName + "\\" + files[files.size() - 1];
-            std::string timeSerieToSearchName = serieName + "\\" + files[2];
+            std::string entireTimeSerieName = serieName + "/" + files[files.size() - 1];
+            std::string timeSerieToSearchName = serieName + "/" + files[2];
 
             printf("Entire time serie: %s\n", entireTimeSerieName.c_str());
             printf("Time serie to search: %s\n", timeSerieToSearchName.c_str());
@@ -172,7 +187,7 @@ int main()
         printf("#####################################################################\n");
     }    
 
-    saveComputationTimes(&computationTimeElapsed, "..\\results\\test.csv");
+    saveComputationTimes(&computationTimeElapsed, outputFileName);
 
     delete(serieFolders);
     for (Algo* algo : algos){

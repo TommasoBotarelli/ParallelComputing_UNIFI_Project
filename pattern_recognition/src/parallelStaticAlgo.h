@@ -9,7 +9,7 @@ class ParallelStaticAlgo : public Algo {
         ParallelStaticAlgo();
         virtual long long int compute(Data* __restrict entireTimeSeries, Data* __restrict timeSeriesToSearch, bool printResults);
     protected:
-        void initData(Data* data, int size, float* values);
+        virtual void initData(Data* data, int size, float* values);
         virtual void setName(char* name);
 };
 

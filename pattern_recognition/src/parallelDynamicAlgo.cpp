@@ -41,7 +41,6 @@ long long int ParallelDynamicAlgo::compute(Data* __restrict entireTimeSeries, Da
         for (int j = 0; j < m; j++) {
             distance += abs(entireTimeSeriesValues[i + j] - timeSeriesToSearchValues[j]);
         }
-
         #pragma omp critical
         if (distance < minDistance) {
             minDistance = distance;
@@ -60,4 +59,14 @@ long long int ParallelDynamicAlgo::compute(Data* __restrict entireTimeSeries, Da
     }
 
     return duration.count();
+}
+
+void ParallelDynamicAlgo::initData(Data *data, int size, float *values)
+{
+    data->size = size;
+    data->values = new float[size];
+    #pragma omp parallel for simd schedule(dynamic)
+    for(int i = 0; i < size; i++) {
+        data->values[i] = values[i];
+    }
 }
