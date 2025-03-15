@@ -8,7 +8,7 @@ class ParallelStaticAlgoNoFirstTouch : public ParallelStaticAlgo {
     public:
         ParallelStaticAlgoNoFirstTouch();
     protected:
-        void initData(Data* data, int size, float* values) override;
+        void initData(Data* data, long long int size, float* values) override;
 };
 
 #endif

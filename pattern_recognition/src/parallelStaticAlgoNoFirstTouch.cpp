@@ -8,7 +8,7 @@ ParallelStaticAlgoNoFirstTouch::ParallelStaticAlgoNoFirstTouch()
     this->vectorized= true;
 }
 
-void ParallelStaticAlgoNoFirstTouch::initData(Data *data, int size, float *values)
+void ParallelStaticAlgoNoFirstTouch::initData(Data *data, long long int size, float *values)
 {
     data->size = size;
     data->values = new float[size];

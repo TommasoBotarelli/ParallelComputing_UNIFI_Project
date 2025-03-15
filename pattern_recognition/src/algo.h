@@ -13,6 +13,7 @@ class Algo {
         Algo(){};
         virtual ~Algo(){};
         Data* read(const char* filename, bool printData);
+        Data* readSerieToSearch(const char *filename, bool printData);
         void printData(Data data);
 
         virtual char* getName();
@@ -24,7 +25,7 @@ class Algo {
         bool vectorized;
         char* name;
 
-        virtual void initData(Data* data, int size, float* values) = 0;
+        virtual void initData(Data* data, long long int size, float* values) = 0;
 };
 
 #endif

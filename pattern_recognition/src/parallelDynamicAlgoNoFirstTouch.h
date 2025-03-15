@@ -7,7 +7,7 @@ class ParallelDynamicAlgoNoFirstTouch : public ParallelDynamicAlgo {
     public:
         ParallelDynamicAlgoNoFirstTouch();
     protected:
-        void initData(Data* data, int size, float* values) override;
+        void initData(Data* data, long long int size, float* values) override;
 };
 
 #endif

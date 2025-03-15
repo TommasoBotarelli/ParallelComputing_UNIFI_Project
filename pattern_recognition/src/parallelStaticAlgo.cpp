@@ -31,7 +31,7 @@ void ParallelStaticAlgo::setName(char* name) {
 }
 
 
-void ParallelStaticAlgo::initData(Data* data, int size, float* values) {
+void ParallelStaticAlgo::initData(Data* data, long long int size, float* values) {
     data->size = size;
     data->values = new float[size];
     #pragma omp parallel for simd schedule(static)

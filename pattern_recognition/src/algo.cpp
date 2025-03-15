@@ -32,9 +32,44 @@ Data* Algo::read(const char *filename, bool printData = false)
         file.read(reinterpret_cast<char*>(&values[index]), sizeof(float));
     }
 
+    file.close();
+
     this->initData(data, size, values);
     
+
+    if (printData) {
+        printf("Successfully read file %s\n", filename);
+    }
+
+    return data;
+}
+
+Data* Algo::readSerieToSearch(const char *filename, bool printData = false)
+{
+    Data* data = new Data();
+
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        std::cerr << "Error: Cannot open file " << filename << std::endl;
+        return data;
+    }
+    
+    float size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(float));
+
+    float* values = new float[(int)size];
+
+    for (int index = 0; index < size; index++) {
+        file.read(reinterpret_cast<char*>(&values[index]), sizeof(float));
+    }
+
     file.close();
+
+    data->size = size;
+    data->values = new float[(int)size];
+    for(int i = 0; i < size; i++) {
+        data->values[i] = values[i];
+    }
 
     if (printData) {
         printf("Successfully read file %s\n", filename);

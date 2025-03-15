@@ -15,19 +15,19 @@ ParallelManualAlgo::ParallelManualAlgo() {
 }
 
 
-void ParallelManualAlgo::initData(Data* data, int size, float* values) {
+void ParallelManualAlgo::initData(Data* data, long long int size, float* values) {
     data->size = size;
     data->values = new float[size];
     #pragma omp parallel
     {
-        int threadId = omp_get_thread_num();
-        int numThreads = omp_get_num_threads();
+        long long int threadId = (long long int)omp_get_thread_num();
+        long long int numThreads = (long long int)omp_get_num_threads();
 
-        int startIndex = size * threadId / numThreads;
-        int endIndex = size * (threadId + 1) / numThreads;
+        long long int startIndex = (size * threadId) / numThreads;
+        long long int endIndex = (size * (threadId + 1)) / numThreads;
 
         #pragma omp simd
-        for (int i = startIndex; i < endIndex; i++) {
+        for (long long int i = startIndex; i < endIndex; i++) {
             data->values[i] = values[i];
         }
     }
@@ -35,8 +35,8 @@ void ParallelManualAlgo::initData(Data* data, int size, float* values) {
 
 
 long long int ParallelManualAlgo::compute(Data* __restrict entireTimeSeries, Data* __restrict timeSeriesToSearch, bool printResults) {
-    int n = entireTimeSeries->size;
-    int m = timeSeriesToSearch->size;
+    long long int n = entireTimeSeries->size;
+    long long int m = timeSeriesToSearch->size;
 
     if (printResults) {
         printf("Entire time series size: %d\n", n);
@@ -51,11 +51,11 @@ long long int ParallelManualAlgo::compute(Data* __restrict entireTimeSeries, Dat
 
     #pragma omp parallel shared(globalMinIndex, globalThreadNumberOfFounder)
     {
-        int threadId = omp_get_thread_num();
-        int numThreads = omp_get_num_threads();
+        long long int threadId = (long long int)omp_get_thread_num();
+        long long int numThreads = (long long int)omp_get_num_threads();
 
-        int startIndex = n * threadId / numThreads;
-        int endIndex = n * (threadId + 1) / numThreads;
+        long long int startIndex = (n * threadId) / numThreads;
+        long long int endIndex = (n * (threadId + 1)) / numThreads;
 
         if (endIndex == n){
             endIndex -= m;
@@ -71,7 +71,7 @@ long long int ParallelManualAlgo::compute(Data* __restrict entireTimeSeries, Dat
         float distance;
         float minDistance = INFINITY;
         int minIndex = -1;
-        int i, j;
+        long long int i, j;
 
         for (i = startIndex; i < endIndex; i++) {
             distance = 0;
@@ -98,7 +98,7 @@ long long int ParallelManualAlgo::compute(Data* __restrict entireTimeSeries, Dat
         }
     }
 
-    int globalMaxIndex = globalMinIndex + m;
+    long long int globalMaxIndex = globalMinIndex + m;
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

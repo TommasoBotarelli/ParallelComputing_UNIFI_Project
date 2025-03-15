@@ -61,7 +61,7 @@ long long int ParallelDynamicAlgo::compute(Data* __restrict entireTimeSeries, Da
     return duration.count();
 }
 
-void ParallelDynamicAlgo::initData(Data *data, int size, float *values)
+void ParallelDynamicAlgo::initData(Data *data, long long int size, float *values)
 {
     data->size = size;
     data->values = new float[size];

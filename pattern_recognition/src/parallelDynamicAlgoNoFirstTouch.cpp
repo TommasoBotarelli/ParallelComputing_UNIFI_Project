@@ -8,7 +8,7 @@ ParallelDynamicAlgoNoFirstTouch::ParallelDynamicAlgoNoFirstTouch()
     this->vectorized = true;
 }
 
-void ParallelDynamicAlgoNoFirstTouch::initData(Data *data, int size, float *values)
+void ParallelDynamicAlgoNoFirstTouch::initData(Data *data, long long int size, float *values)
 {
     data->size = size;
     data->values = new float[size];
