@@ -146,9 +146,9 @@ int testMode(int imageWidth, int imageHeight, int kernelSize, int kernelType, ch
     printImage(rawImage, "Initial Image");
     cv::Mat* imageRGB = reconstructColoredImage(rawImage);
     
-    //std::string outputPath = std::string(imagePath) + "initialImage.jpg";
-    //std::cout << "Saving " << outputPath << std::endl;
-    //cv::imwrite(outputPath, *imageRGB);
+    std::string outputPath = std::string(imagePath) + "initialImage.jpg";
+    std::cout << "Saving " << outputPath << std::endl;
+    cv::imwrite(outputPath, *imageRGB);
     
     // get image with border
     int paddingSize = kernelSize / 2;
@@ -156,9 +156,9 @@ int testMode(int imageWidth, int imageHeight, int kernelSize, int kernelType, ch
     printImage(imageWithBorder, "Image with Border");
     cv::Mat* imageWithBorderRGB = reconstructColoredImage(imageWithBorder);
 
-    //outputPath = std::string(imagePath) + "imageWithBorder.jpg";
-    //std::cout << "Saving " << outputPath << std::endl;
-    //cv::imwrite(outputPath, *imageWithBorderRGB);
+    outputPath = std::string(imagePath) + "imageWithBorder.jpg";
+    std::cout << "Saving " << outputPath << std::endl;
+    cv::imwrite(outputPath, *imageWithBorderRGB);
 
     // process
     int returnCode = process(imageWithBorder, kernelSize, kernelType, imagePath, numIterations, averageTimeSequential, print);
