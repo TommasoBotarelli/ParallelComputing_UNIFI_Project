@@ -1,1 +1,0 @@
-# Parallel Computing Course Project 
