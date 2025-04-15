@@ -312,6 +312,7 @@ Image* processImage_CUDA_threeChannel_constant(Image* h_image, Kernel* h_kernel)
     cudaMemcpyToSymbol(const_inputImageCols, &h_image->cols, sizeof(int));
     cudaMemcpyToSymbol(const_kernelCols, &h_kernel->cols, sizeof(int));
     cudaMemcpyToSymbol(const_N, &totalResultPixels, sizeof(int));
+    
     int channelN = h_resultImage->rows * h_resultImage->cols;
     cudaMemcpyToSymbol(const_channelN, &channelN, sizeof(int));
     int channelNInput = h_image->rows * h_image->cols;
