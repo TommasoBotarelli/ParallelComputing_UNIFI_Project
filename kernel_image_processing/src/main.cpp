@@ -73,7 +73,7 @@ int process(Image* imageWithBorder, int kernelSize, int kernelType, char* imageP
     outputPath = std::string(imagePath) + "processedImage_CUDA_oneChannel_noConstant.jpg";
     double averageTimeCUDAv1 = processRoutine(&processImage_CUDA_oneChannel, imageWithBorder, kernel, numIterations, outputPath, print);
 
-    // CUDA processing v3
+    // CUDA processing v2
     // same as v2 but I use __constant__ variable for kernel and all the other settings
     std::cout << "--------------------------------------------------" << std::endl;
     std::cout << "[CUDA V2] three channel (blocks grid) with constant processing..." << std::endl;
@@ -82,7 +82,7 @@ int process(Image* imageWithBorder, int kernelSize, int kernelType, char* imageP
     double averageTimeCUDAv2 = processRoutine(&processImage_CUDA_threeChannel_constant, imageWithBorder, kernel, numIterations, outputPath, print);
     
 
-    // CUDA processing v4
+    // CUDA processing v3
     // the pixels are linearized into a big array
     // then, instead of creating a grid of blocks I use only a dimension like the first version
     // this allows to optimize cache utilization between one single block.
@@ -92,7 +92,7 @@ int process(Image* imageWithBorder, int kernelSize, int kernelType, char* imageP
     outputPath = std::string(imagePath) + "processedImage_threeChannel_constant_noGrid.jpg";
     double averageTimeCUDAv3 = processRoutine(&processImage_threeChannel_constant_noGrid, imageWithBorder, kernel, numIterations, outputPath, print);
    
-    // CUDA processing v5
+    // CUDA processing v4
     // I pass all the channel one by one at the beginning then I use a kernel modified
     // to have as input all the channel divided
     std::cout << "--------------------------------------------------" << std::endl;
@@ -101,7 +101,7 @@ int process(Image* imageWithBorder, int kernelSize, int kernelType, char* imageP
     outputPath = std::string(imagePath) + "processedImage_CUDA_threeChannelTogether.jpg";
     double averageTimeCUDAv4 = processRoutine(&processImage_CUDA_threeChannelTogether, imageWithBorder, kernel, numIterations, outputPath, print);
     
-    // CUDA processing v6
+    // CUDA processing v5
     // same as v1 but with the use of __constant__
     std::cout << "--------------------------------------------------" << std::endl;
     std::cout << "[CUDA V5] one channel with constant (no linearization) processing..." << std::endl;
@@ -193,6 +193,38 @@ int imageMode(char* inputImageFilePath, int kernelSize, int kernelType, char* im
 
     return returnCode;
 }
+
+/*
+ * Input Arguments Explanation:
+ * 
+ * test: A keyword indicating that the program should run in test mode.
+ * 
+ * <image_width>: The width of the test image to be generated (integer).
+ * 
+ * <image_height>: The height of the test image to be generated (integer).
+ * 
+ * <kernel_size>: The size of the kernel to be used for image processing (integer).
+ *                Must be an odd number (e.g., 3, 5, 7).
+ * 
+ * <kernel_type>: The type of kernel to be used (integer).
+ *                IDENTITY 1
+ *                BLUR 2
+ *                EDGE 3
+ *                GAUSSIAN 4
+ *                This value corresponds to predefined kernel types in the program.
+ * 
+ * <saving_image_path>: The directory path where the processed images will be saved (string).
+ * 
+ * <num_iterations>: The number of iterations to run the processing routine (integer).
+ *                   Used for performance evaluation and averaging.
+ * 
+ * <num_test_rows>: The number of rows generated for the test image (chessboard).
+ * 
+ * <num_test_cols>: The number of columns generated for the test image (chessboard).
+ * 
+ * <average_time_sequential_in>: The average time (in microseconds) for sequential processing (double).
+ *                               If set to 0, the program will calculate it during execution.
+ */
 
 
 int main(int argc, char** argv){
