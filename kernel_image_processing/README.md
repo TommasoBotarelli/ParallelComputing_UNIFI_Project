@@ -5,6 +5,9 @@ This project explores the acceleration of kernel-based image processing—a fund
 
 The project compares a sequential CPU implementation with multiple CUDA-based parallel implementations, evaluating them based on execution time, computational complexity, and efficiency.
 
+* [Presentation](https://github.com/TommasoBotarelli/ParallelComputing_UNIFI_Project/blob/master/presentazioni/kernel_image_processing.pdf)
+* [PDF report](https://github.com/TommasoBotarelli/ParallelComputing_UNIFI_Project/blob/master/reports/kernel_image_processing.pdf)
+
 
 ## Technologies & CUDA Implementations
 The project utilizes **CUDA** to map individual pixel computations to separate GPU threads, allowing for massive parallelization. Several parallelization strategies were implemented to optimize performance:
