@@ -7,6 +7,8 @@ This project explores the optimization of image augmentation pipelines using par
 * **Albumentations**: A high-level Python library used to create flexible augmentation pipelines involving geometric and photometric transformations.
 * **OpenCV (cv2)**: Used for high-performance image reading, color space conversion, and writing operations.
 
+* [Presentation](https://github.com/TommasoBotarelli/ParallelComputing_UNIFI_Project/blob/master/presentazioni/image_augmentation.pdf)
+* [PDF report](https://github.com/TommasoBotarelli/ParallelComputing_UNIFI_Project/blob/master/reports/image_augmentation.pdf)
 ---
 
 ## Methodology
